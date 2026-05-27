@@ -1030,12 +1030,12 @@ function renderCatButtons() {
   });
 }
 
-/* ── -30분 빼기 ── */
+/* ── -20분 빼기 ── */
 function subtractTime(catId, btnEl) {
   if (!state.logs[state.selectedDate]) { showToast('기록이 없어요'); return; }
   const cur = state.logs[state.selectedDate][catId] || 0;
   if (cur <= 0) { showToast('이미 0이에요'); return; }
-  state.logs[state.selectedDate][catId] = Math.max(0, cur - 30);
+  state.logs[state.selectedDate][catId] = Math.max(0, cur - 20);
   if (state.logs[state.selectedDate][catId] === 0) {
     delete state.logs[state.selectedDate][catId];
   }
@@ -1045,7 +1045,7 @@ function subtractTime(catId, btnEl) {
   if (btnEl) {
     const pop = document.createElement('span');
     pop.className = 'add-pop';
-    pop.textContent = '−30m';
+    pop.textContent = '−20m';
     pop.style.color = state.categories.find(c => c.id === catId)?.color || '#333';
     btnEl.appendChild(pop);
     setTimeout(() => pop.remove(), 650);
@@ -1056,20 +1056,20 @@ function subtractTime(catId, btnEl) {
   renderBars();
   renderCalendar();
   renderReport();
-  showToast('−30분');
+  showToast('−20m');
 }
 
-/* ── +30분 추가 ── */
+/* ── +20분 추가 ── */
 function addTime(catId, btnEl) {
   if (!state.logs[state.selectedDate]) state.logs[state.selectedDate] = {};
   const cur = state.logs[state.selectedDate][catId] || 0;
-  state.logs[state.selectedDate][catId] = cur + 30;
+  state.logs[state.selectedDate][catId] = cur + 20;
   save();
 
   // 팝업 애니메이션
   const pop = document.createElement('span');
   pop.className = 'add-pop';
-  pop.textContent = '+30m';
+  pop.textContent = '+20m';
   pop.style.color = state.categories.find(c=>c.id===catId)?.color || '#333';
   btnEl.appendChild(pop);
   setTimeout(() => pop.remove(), 650);
