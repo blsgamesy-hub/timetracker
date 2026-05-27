@@ -1,4 +1,4 @@
-const CACHE_NAME = 'time-tracker-v1.1';
+const CACHE_NAME = 'time-tracker-v1.2';
 const ASSETS = [
   './time-tracker.html',
   './manifest_time-tracker.json',
