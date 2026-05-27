@@ -741,6 +741,119 @@
   }
   .toast.show { transform: translateX(-50%) translateY(0); }
 
+  /* 이모지 편집 모달 */
+  .emoji-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(28,25,23,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .emoji-modal-backdrop.open { opacity: 1; pointer-events: all; }
+  .emoji-modal {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 24px;
+    width: 320px;
+    transform: translateY(12px);
+    transition: transform 0.2s;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+  }
+  .emoji-modal-backdrop.open .emoji-modal { transform: translateY(0); }
+  .emoji-modal-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.05rem;
+    margin-bottom: 4px;
+  }
+  .emoji-modal-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--ink-light);
+    letter-spacing: 0.06em;
+    margin-bottom: 14px;
+  }
+  .emoji-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 14px;
+    max-height: 180px;
+    overflow-y: auto;
+  }
+  .emoji-chip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 10px 4px 8px;
+    font-size: 1rem;
+    cursor: default;
+  }
+  .emoji-chip-del {
+    font-size: 0.65rem;
+    color: var(--ink-light);
+    cursor: pointer;
+    line-height: 1;
+    padding: 1px 2px;
+    border-radius: 50%;
+    transition: all 0.12s;
+  }
+  .emoji-chip-del:hover { background: #fef2f2; color: var(--accent); }
+  .emoji-add-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .emoji-input {
+    flex: 1;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 12px;
+    font-size: 1rem;
+    background: var(--bg);
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .emoji-input:focus { border-color: var(--ink-light); }
+  .emoji-add-btn {
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 14px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 0.78rem;
+    cursor: pointer;
+    background: var(--ink);
+    color: #fff;
+    transition: opacity 0.15s;
+    white-space: nowrap;
+  }
+  .emoji-add-btn:hover { opacity: 0.8; }
+  .emoji-modal-close {
+    margin-top: 12px;
+    width: 100%;
+    padding: 8px;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--ink-light);
+    cursor: pointer;
+    transition: all 0.13s;
+  }
+  .emoji-modal-close:hover { color: var(--ink); }
+  #headerEmoji { cursor: pointer; transition: transform 0.15s; }
+  #headerEmoji:hover { transform: scale(1.2); }
+
   /* 빈 상태 */
   .empty-state {
     text-align: center;
@@ -762,6 +875,7 @@
 
 <header>
   <h1>나의 하루</h1>
+  <span id="headerEmoji" style="font-size:1.4rem;line-height:1;">✨</span>
   <span class="subtitle">Time Tracker · Auto-save on</span>
 </header>
 
@@ -850,6 +964,20 @@
 
 <div class="toast" id="toast"></div>
 
+<!-- 이모지 편집 모달 -->
+<div class="emoji-modal-backdrop" id="emojiModal">
+  <div class="emoji-modal">
+    <div class="emoji-modal-title">이모지 편집</div>
+    <div class="emoji-modal-sub">탭하면 열 때마다 랜덤으로 등장해요</div>
+    <div class="emoji-grid" id="emojiGrid"></div>
+    <div class="emoji-add-row">
+      <input class="emoji-input" id="emojiInput" placeholder="이모지 입력" maxlength="4">
+      <button class="emoji-add-btn" id="emojiAddBtn">추가</button>
+    </div>
+    <button class="emoji-modal-close" id="emojiModalClose">닫기</button>
+  </div>
+</div>
+
 <!-- 드래그 선택 카테고리 시트 -->
 <div class="drag-cat-modal" id="dragCatModal">
   <div class="drag-cat-sheet">
@@ -905,6 +1033,8 @@ const SLOTS_PER_HOUR = 4;   // 15분 × 4 = 60분
 const SLOT_MIN = 15;
 
 /* ── 상태 ── */
+const DEFAULT_EMOJIS = ['🪴','🍀','🪽','🫧','🌊','🎈','🧩','🌸','🕯️','🔭','🧭','🦧','🐲','🦅','🐣','🌼','🌷','🐋','🥖','🌅','🌞','🌈','✨','🎀','🧸','🍒','🐯','⏳','🌙','🌿'];
+
 let state = {
   categories: [
     { id: 1, name: '작업', color: '#5B8DB8' },
@@ -915,6 +1045,7 @@ let state = {
   // timeline: { 'YYYY-MM-DD': { 'H-S': catId } }  H=0~23, S=0~3
   timeline: {},
   memos: {},
+  emojis: [...DEFAULT_EMOJIS],
   calYear: 0,
   calMonth: 0,
   selectedDate: '',
@@ -928,6 +1059,7 @@ function save() {
     categories: state.categories,
     timeline: state.timeline,
     memos: state.memos,
+    emojis: state.emojis,
   }));
 }
 function load() {
@@ -936,6 +1068,7 @@ function load() {
     if (d.categories) state.categories = d.categories;
     if (d.timeline) state.timeline = d.timeline;
     if (d.memos) state.memos = d.memos;
+    if (d.emojis) state.emojis = d.emojis;
   } catch(e) {}
 }
 
@@ -1687,9 +1820,55 @@ if ('serviceWorker' in navigator) {
   }
 }
 
+/* ── 이모지 모달 ── */
+function renderEmojiGrid() {
+  const grid = document.getElementById('emojiGrid');
+  grid.innerHTML = state.emojis.map((em, i) => `
+    <div class="emoji-chip">
+      <span>${em}</span>
+      <span class="emoji-chip-del" data-i="${i}">✕</span>
+    </div>
+  `).join('');
+  grid.querySelectorAll('.emoji-chip-del').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = Number(btn.dataset.i);
+      state.emojis.splice(idx, 1);
+      if (state.emojis.length === 0) state.emojis = [...DEFAULT_EMOJIS];
+      save();
+      renderEmojiGrid();
+    });
+  });
+}
+
+document.getElementById('headerEmoji').addEventListener('click', () => {
+  renderEmojiGrid();
+  document.getElementById('emojiModal').classList.add('open');
+});
+document.getElementById('emojiModalClose').addEventListener('click', () => {
+  document.getElementById('emojiModal').classList.remove('open');
+});
+document.getElementById('emojiModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('emojiModal'))
+    document.getElementById('emojiModal').classList.remove('open');
+});
+document.getElementById('emojiAddBtn').addEventListener('click', () => {
+  const val = document.getElementById('emojiInput').value.trim();
+  if (!val) return;
+  if (!state.emojis.includes(val)) {
+    state.emojis.push(val);
+    save();
+    renderEmojiGrid();
+  }
+  document.getElementById('emojiInput').value = '';
+});
+document.getElementById('emojiInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('emojiAddBtn').click();
+});
+
 /* ── 초기화 ── */
 function init() {
   load();
+  document.getElementById('headerEmoji').textContent = state.emojis[Math.floor(Math.random() * state.emojis.length)] || '✨';
   const now = new Date();
   state.calYear = now.getFullYear();
   state.calMonth = now.getMonth();
