@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>나의 하루 트래커</title>
+<link rel="manifest" href="./manifest_time-tracker.json">
+<meta name="theme-color" content="#1C1917">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="하루 트래커">
+<link rel="apple-touch-icon" href="./icon_192_time-tracker.png">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F5F0E8;
+    --surface: #FDFAF4;
+    --ink: #1C1917;
+    --ink-light: #78716C;
+    --ink-faint: #D6D0C4;
+    --accent: #C0392B;
+    --accent2: #2980B9;
+    --border: #E5DDD0;
+
+    --cat1: #E07B54;
+    --cat2: #5B8DB8;
+    --cat3: #6BAA75;
+    --cat4: #C17FBF;
+    --cat5: #D4A843;
+    --cat6: #E85E5E;
+    --cat7: #5EC4C4;
+    --cat8: #9B8EA8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Noto Sans KR', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── HEADER ── */
+  header {
+    padding: 28px 36px 20px;
+    border-bottom: 1.5px solid var(--border);
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    background: var(--surface);
+  }
+
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem;
+    letter-spacing: -0.5px;
+    line-height: 1;
+  }
+
+  header .subtitle {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--ink-light);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ── LAYOUT ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── SIDEBAR (달력 + 로그 리스트) ── */
+  .sidebar {
+    border-right: 1.5px solid var(--border);
+    background: var(--surface);
+    overflow-y: auto;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* 달력 */
+  .cal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .cal-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.05rem;
+  }
+
+  .cal-nav {
+    background: none;
+    border: 1px solid var(--border);
+    width: 26px; height: 26px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-light);
+    transition: background 0.15s;
+  }
+  .cal-nav:hover { background: var(--bg); }
+
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+    text-align: center;
+  }
+
+  .cal-dow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--ink-light);
+    padding: 4px 0;
+    letter-spacing: 0.05em;
+  }
+
+  .cal-day {
+    font-size: 0.75rem;
+    padding: 5px 0;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.12s;
+    position: relative;
+  }
+  .cal-day:hover { background: var(--bg); }
+  .cal-day.today { font-weight: 500; color: var(--accent); }
+  .cal-day.selected { background: var(--ink); color: #fff; }
+  .cal-day.has-data::after {
+    content: '';
+    display: block;
+    width: 4px; height: 4px;
+    background: var(--accent);
+    border-radius: 50%;
+    margin: 2px auto 0;
+  }
+  .cal-day.selected::after { background: #fff; }
+  .cal-day.other-month { color: var(--ink-faint); }
+
+  /* ── MAIN ── */
+  .main {
+    overflow-y: auto;
+    padding: 28px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .date-label {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem;
+    color: var(--ink);
+  }
+
+  /* 시각화 바 */
+  .viz-section {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 22px;
+  }
+
+  .viz-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 14px;
+  }
+
+  .bars-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .bar-label {
+    font-size: 0.78rem;
+    width: 80px;
+    flex-shrink: 0;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .bar-track {
+    flex: 1;
+    height: 18px;
+    background: var(--bg);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.4s ease;
+    min-width: 2px;
+  }
+
+  .bar-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--ink-light);
+    width: 44px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .total-row {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .total-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+  }
+
+  .total-val {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.2rem;
+  }
+
+  /* 카테고리 버튼 */
+  .cat-section-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 12px;
+  }
+
+  .cat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+  }
+
+  .cat-btn {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cat-btn::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+  }
+
+  .cat-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  .cat-btn:active {
+    transform: scale(0.97);
+  }
+
+  .cat-btn .cat-name {
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  .cat-btn .cat-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--ink-light);
+  }
+
+  .cat-btn .cat-plus {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.3rem;
+    color: var(--ink-faint);
+    line-height: 1;
+    font-weight: 300;
+  }
+
+  .cat-btn:hover .cat-plus {
+    color: var(--ink-light);
+  }
+
+  /* +30분 애니메이션 */
+  @keyframes popUp {
+    0% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-28px); }
+  }
+
+  .add-pop {
+    position: absolute;
+    right: 10px;
+    top: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: inherit;
+    pointer-events: none;
+    animation: popUp 0.6s ease forwards;
+  }
+
+  /* 카테고리 관리 */
+  .manage-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 6px;
+  }
+
+  .manage-input {
+    flex: 1;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 0.82rem;
+    background: var(--surface);
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .manage-input:focus { border-color: var(--ink-light); }
+
+  .manage-btn {
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 0.78rem;
+    cursor: pointer;
+    background: var(--ink);
+    color: #fff;
+    transition: opacity 0.15s;
+  }
+  .manage-btn:hover { opacity: 0.8; }
+
+  .delete-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--ink-faint);
+    font-size: 0.8rem;
+    padding: 4px;
+    line-height: 1;
+    transition: color 0.15s;
+  }
+  .delete-btn:hover { color: var(--accent); }
+
+  /* 색상 선택 */
+  .color-picker-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+  }
+
+  .color-dot {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .color-dot:hover { transform: scale(1.2); }
+  .color-dot.selected { border-color: var(--ink); }
+
+  /* 메모 */
+  .memo-area {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 0.82rem;
+    background: var(--surface);
+    color: var(--ink);
+    outline: none;
+    resize: vertical;
+    min-height: 70px;
+    transition: border-color 0.15s;
+    line-height: 1.6;
+  }
+  .memo-area:focus { border-color: var(--ink-light); }
+
+  /* ── 카테고리 목록 (관리용) ── */
+  .cat-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .cat-list-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+  }
+
+  .cat-list-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .cat-list-name {
+    font-size: 0.82rem;
+    flex: 1;
+  }
+
+  .cat-list-actions {
+    display: flex;
+    gap: 4px;
+  }
+
+  .icon-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    width: 26px; height: 26px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-light);
+    transition: all 0.12s;
+  }
+  .icon-btn:hover { background: var(--bg); color: var(--ink); }
+  .icon-btn.danger:hover { background: #fef2f2; color: var(--accent); border-color: #fca5a5; }
+
+  /* ── 모달 ── */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(28,25,23,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .modal-backdrop.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .modal {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 26px;
+    width: 320px;
+    transform: translateY(12px);
+    transition: transform 0.2s;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+  }
+  .modal-backdrop.open .modal {
+    transform: translateY(0);
+  }
+
+  .modal-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem;
+    margin-bottom: 16px;
+  }
+
+  .modal-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .modal-input {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 9px 12px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 0.85rem;
+    background: var(--bg);
+    color: var(--ink);
+    outline: none;
+    margin-bottom: 14px;
+    transition: border-color 0.15s;
+  }
+  .modal-input:focus { border-color: var(--ink-light); }
+
+  .modal-color-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .modal-btn {
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .modal-btn.cancel { background: var(--bg); color: var(--ink-light); }
+  .modal-btn.cancel:hover { color: var(--ink); }
+  .modal-btn.confirm { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .modal-btn.confirm:hover { opacity: 0.8; }
+  .modal-btn.danger-btn { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .modal-btn.danger-btn:hover { opacity: 0.85; }
+
+  /* ── 섹션 구분선 ── */
+  .section-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 4px 0;
+  }
+
+  /* 반응형 */
+  @media (max-width: 680px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { border-right: none; border-bottom: 1.5px solid var(--border); }
+    .main { padding: 20px; }
+  }
+
+  /* 토스트 */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--ink);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    transition: transform 0.3s ease;
+    pointer-events: none;
+    z-index: 999;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* 빈 상태 */
+  .empty-state {
+    text-align: center;
+    padding: 32px 0;
+    color: var(--ink-light);
+    font-size: 0.82rem;
+    line-height: 2;
+  }
+
+  .section-block {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>나의 하루</h1>
+  <span class="subtitle">Time Tracker · Auto-save on</span>
+</header>
+
+<div class="layout">
+  <!-- SIDEBAR: 달력 -->
+  <aside class="sidebar">
+    <div>
+      <div class="cal-header">
+        <button class="cal-nav" id="prevMonth">‹</button>
+        <span class="cal-title" id="calTitle"></span>
+        <button class="cal-nav" id="nextMonth">›</button>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- 메모 -->
+    <div>
+      <div class="cat-section-title">📝 하루 메모</div>
+      <textarea class="memo-area" id="memoArea" placeholder="오늘 하루를 한 줄로..."></textarea>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="date-label" id="dateLabel"></div>
+
+    <!-- 시각화 -->
+    <div class="viz-section">
+      <div class="viz-title">시간 분포</div>
+      <div class="bars-wrap" id="barsWrap">
+        <div class="empty-state">아직 기록이 없어요</div>
+      </div>
+      <div class="total-row">
+        <span class="total-label">총 기록</span>
+        <span class="total-val" id="totalTime">0h 0m</span>
+      </div>
+    </div>
+
+    <!-- 카테고리 버튼 -->
+    <div class="section-block">
+      <div class="cat-section-title">카테고리 · 버튼을 눌러 +30분</div>
+      <div class="cat-grid" id="catGrid"></div>
+    </div>
+
+    <!-- 카테고리 추가 + 관리 목록 -->
+    <div class="section-block">
+      <div class="cat-section-title">카테고리 관리</div>
+      <!-- 추가 -->
+      <div class="manage-row">
+        <input class="manage-input" id="newCatName" placeholder="새 카테고리 이름" maxlength="12">
+        <button class="manage-btn" id="addCatBtn">추가</button>
+      </div>
+      <div class="color-picker-row" id="colorPicker"></div>
+      <!-- 목록 -->
+      <div class="cat-list" id="catManageList"></div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- 수정 모달 -->
+<div class="modal-backdrop" id="editModal">
+  <div class="modal">
+    <div class="modal-title">카테고리 수정</div>
+    <span class="modal-label">이름</span>
+    <input class="modal-input" id="editName" maxlength="12" placeholder="카테고리 이름">
+    <span class="modal-label">색상</span>
+    <div class="modal-color-row" id="editColorPicker"></div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" id="editCancel">취소</button>
+      <button class="modal-btn confirm" id="editConfirm">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 삭제 확인 모달 -->
+<div class="modal-backdrop" id="deleteModal">
+  <div class="modal">
+    <div class="modal-title">카테고리 삭제</div>
+    <p style="font-size:0.85rem; color:var(--ink-light); line-height:1.7; margin-bottom:20px">
+      "<span id="deleteTargetName" style="color:var(--ink); font-weight:500"></span>" 카테고리를 삭제할까요?<br>
+      <span style="font-size:0.78rem">기록된 시간 데이터도 함께 삭제돼요.</span>
+    </p>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" id="deleteCancel">취소</button>
+      <button class="modal-btn danger-btn" id="deleteConfirm">삭제</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── 상수 ── */
+const COLORS = [
+  '#E07B54','#5B8DB8','#6BAA75','#C17FBF',
+  '#D4A843','#E85E5E','#5EC4C4','#9B8EA8',
+  '#A0522D','#4682B4','#3CB371','#DA70D6'
+];
+
+const DOW = ['일','월','화','수','목','금','토'];
+
+/* ── 상태 ── */
+let state = {
+  categories: [
+    { id: 1, name: '작업', color: '#5B8DB8' },
+    { id: 2, name: '운동', color: '#6BAA75' },
+    { id: 3, name: '독서', color: '#D4A843' },
+    { id: 4, name: '휴식', color: '#C17FBF' },
+  ],
+  logs: {},        // { 'YYYY-MM-DD': { catId: minutes, ... } }
+  memos: {},       // { 'YYYY-MM-DD': '...' }
+  calYear: 0,
+  calMonth: 0,
+  selectedDate: '',
+  selectedColor: COLORS[0],
+};
+
+/* ── 로컬스토리지 ── */
+function save() {
+  localStorage.setItem('dayTracker_v1', JSON.stringify({
+    categories: state.categories,
+    logs: state.logs,
+    memos: state.memos,
+  }));
+}
+
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem('dayTracker_v1') || '{}');
+    if (d.categories) state.categories = d.categories;
+    if (d.logs) state.logs = d.logs;
+    if (d.memos) state.memos = d.memos;
+  } catch(e) {}
+}
+
+/* ── 날짜 헬퍼 ── */
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function dateKey(y, m, d) {
+  return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+}
+
+function fmtMin(min) {
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  if (h === 0) return `${m}m`;
+  if (m === 0) return `${h}h`;
+  return `${h}h ${m}m`;
+}
+
+function fmtDateLabel(dateStr) {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const names = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  const dt = new Date(y, m-1, d);
+  return `${y}년 ${names[m-1]} ${d}일 (${DOW[dt.getDay()]})`;
+}
+
+/* ── 달력 렌더 ── */
+function renderCalendar() {
+  const { calYear: y, calMonth: m } = state;
+  const monthNames = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  document.getElementById('calTitle').textContent = `${y}년 ${monthNames[m]}`;
+
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+
+  DOW.forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'cal-dow';
+    el.textContent = d;
+    grid.appendChild(el);
+  });
+
+  const firstDay = new Date(y, m, 1).getDay();
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  const prevDays = new Date(y, m, 0).getDate();
+
+  // 이전달
+  for (let i = firstDay - 1; i >= 0; i--) {
+    const el = document.createElement('div');
+    el.className = 'cal-day other-month';
+    el.textContent = prevDays - i;
+    grid.appendChild(el);
+  }
+
+  const today = todayStr();
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key = dateKey(y, m, d);
+    const el = document.createElement('div');
+    el.className = 'cal-day';
+    el.textContent = d;
+    if (key === today) el.classList.add('today');
+    if (key === state.selectedDate) el.classList.add('selected');
+    if (state.logs[key] && Object.values(state.logs[key]).some(v => v > 0)) {
+      el.classList.add('has-data');
+    }
+    el.addEventListener('click', () => selectDate(key));
+    grid.appendChild(el);
+  }
+
+  // 다음달 채우기
+  const total = firstDay + daysInMonth;
+  const remain = total % 7 === 0 ? 0 : 7 - (total % 7);
+  for (let d = 1; d <= remain; d++) {
+    const el = document.createElement('div');
+    el.className = 'cal-day other-month';
+    el.textContent = d;
+    grid.appendChild(el);
+  }
+}
+
+/* ── 날짜 선택 ── */
+function selectDate(dateStr) {
+  state.selectedDate = dateStr;
+  document.getElementById('dateLabel').textContent = fmtDateLabel(dateStr);
+  document.getElementById('memoArea').value = state.memos[dateStr] || '';
+  renderCalendar();
+  renderBars();
+  renderCatButtons();
+}
+
+/* ── 시각화 바 ── */
+function renderBars() {
+  const wrap = document.getElementById('barsWrap');
+  const log = state.logs[state.selectedDate] || {};
+  const totalMin = Object.values(log).reduce((a,b) => a+b, 0);
+
+  document.getElementById('totalTime').textContent = fmtMin(totalMin) || '0m';
+
+  // 시간 있는 카테고리만
+  const active = state.categories
+    .map(c => ({ ...c, min: log[c.id] || 0 }))
+    .filter(c => c.min > 0)
+    .sort((a,b) => b.min - a.min);
+
+  if (active.length === 0) {
+    wrap.innerHTML = '<div class="empty-state">아직 기록이 없어요<br>버튼을 눌러 시간을 추가해보세요 ✨</div>';
+    return;
+  }
+
+  const maxMin = Math.max(...active.map(c => c.min));
+
+  wrap.innerHTML = active.map(c => `
+    <div class="bar-row">
+      <div class="bar-label" title="${c.name}">${c.name}</div>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${(c.min/maxMin)*100}%; background:${c.color}"></div>
+      </div>
+      <div class="bar-time">${fmtMin(c.min)}</div>
+    </div>
+  `).join('');
+}
+
+/* ── 카테고리 버튼 ── */
+function renderCatButtons() {
+  const grid = document.getElementById('catGrid');
+  const log = state.logs[state.selectedDate] || {};
+
+  grid.innerHTML = state.categories.map(c => `
+    <button class="cat-btn" data-id="${c.id}" style="--cat-color:${c.color}">
+      <span style="position:absolute;left:0;top:0;bottom:0;width:4px;background:${c.color};border-radius:8px 0 0 8px"></span>
+      <span class="cat-name">${c.name}</span>
+      <span class="cat-time" id="catTime_${c.id}">${fmtMin(log[c.id] || 0)}</span>
+      <span class="cat-plus">+</span>
+    </button>
+  `).join('');
+
+  grid.querySelectorAll('.cat-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const id = Number(btn.dataset.id);
+      addTime(id, btn);
+    });
+  });
+}
+
+/* ── +30분 추가 ── */
+function addTime(catId, btnEl) {
+  if (!state.logs[state.selectedDate]) state.logs[state.selectedDate] = {};
+  const cur = state.logs[state.selectedDate][catId] || 0;
+  state.logs[state.selectedDate][catId] = cur + 30;
+  save();
+
+  // 팝업 애니메이션
+  const pop = document.createElement('span');
+  pop.className = 'add-pop';
+  pop.textContent = '+30m';
+  pop.style.color = state.categories.find(c=>c.id===catId)?.color || '#333';
+  btnEl.appendChild(pop);
+  setTimeout(() => pop.remove(), 650);
+
+  // 시간 업데이트
+  const timeEl = document.getElementById(`catTime_${catId}`);
+  if (timeEl) timeEl.textContent = fmtMin(state.logs[state.selectedDate][catId]);
+
+  renderBars();
+  renderCalendar();
+  showToast('저장됨 ✓');
+}
+
+/* ── 카테고리 관리 목록 렌더 ── */
+function renderCatManageList() {
+  const list = document.getElementById('catManageList');
+  if (state.categories.length === 0) {
+    list.innerHTML = '<div style="font-size:0.78rem;color:var(--ink-light);padding:8px 0">카테고리를 추가해보세요</div>';
+    return;
+  }
+  list.innerHTML = state.categories.map(c => `
+    <div class="cat-list-item">
+      <div class="cat-list-dot" style="background:${c.color}"></div>
+      <span class="cat-list-name">${c.name}</span>
+      <div class="cat-list-actions">
+        <button class="icon-btn" data-edit="${c.id}" title="수정">✏️</button>
+        <button class="icon-btn danger" data-del="${c.id}" title="삭제">🗑</button>
+      </div>
+    </div>
+  `).join('');
+
+  list.querySelectorAll('[data-edit]').forEach(btn => {
+    btn.addEventListener('click', () => openEditModal(Number(btn.dataset.edit)));
+  });
+  list.querySelectorAll('[data-del]').forEach(btn => {
+    btn.addEventListener('click', () => openDeleteModal(Number(btn.dataset.del)));
+  });
+}
+
+/* ── 수정 모달 ── */
+let editingId = null;
+let editSelectedColor = COLORS[0];
+
+function openEditModal(catId) {
+  const cat = state.categories.find(c => c.id === catId);
+  if (!cat) return;
+  editingId = catId;
+  editSelectedColor = cat.color;
+  document.getElementById('editName').value = cat.name;
+  renderEditColorPicker();
+  document.getElementById('editModal').classList.add('open');
+}
+
+function renderEditColorPicker() {
+  const wrap = document.getElementById('editColorPicker');
+  wrap.innerHTML = COLORS.map(c => `
+    <div class="color-dot ${c === editSelectedColor ? 'selected' : ''}"
+         style="background:${c}" data-color="${c}"></div>
+  `).join('');
+  wrap.querySelectorAll('.color-dot').forEach(dot => {
+    dot.addEventListener('click', () => {
+      editSelectedColor = dot.dataset.color;
+      renderEditColorPicker();
+    });
+  });
+}
+
+document.getElementById('editConfirm').addEventListener('click', () => {
+  const name = document.getElementById('editName').value.trim();
+  if (!name) return;
+  const cat = state.categories.find(c => c.id === editingId);
+  if (!cat) return;
+  cat.name = name;
+  cat.color = editSelectedColor;
+  save();
+  document.getElementById('editModal').classList.remove('open');
+  renderCatButtons();
+  renderCatManageList();
+  renderBars();
+  showToast('수정됨 ✓');
+});
+
+document.getElementById('editCancel').addEventListener('click', () => {
+  document.getElementById('editModal').classList.remove('open');
+});
+
+document.getElementById('editModal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('editModal'))
+    document.getElementById('editModal').classList.remove('open');
+});
+
+/* ── 삭제 모달 ── */
+let deletingId = null;
+
+function openDeleteModal(catId) {
+  const cat = state.categories.find(c => c.id === catId);
+  if (!cat) return;
+  deletingId = catId;
+  document.getElementById('deleteTargetName').textContent = cat.name;
+  document.getElementById('deleteModal').classList.add('open');
+}
+
+document.getElementById('deleteConfirm').addEventListener('click', () => {
+  state.categories = state.categories.filter(c => c.id !== deletingId);
+  // 모든 날짜 로그에서 해당 카테고리 데이터도 삭제
+  Object.keys(state.logs).forEach(date => {
+    delete state.logs[date][deletingId];
+  });
+  save();
+  document.getElementById('deleteModal').classList.remove('open');
+  renderCatButtons();
+  renderCatManageList();
+  renderBars();
+  showToast('삭제됨');
+});
+
+document.getElementById('deleteCancel').addEventListener('click', () => {
+  document.getElementById('deleteModal').classList.remove('open');
+});
+
+document.getElementById('deleteModal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('deleteModal'))
+    document.getElementById('deleteModal').classList.remove('open');
+});
+
+/* ── 색상 피커 ── */
+function renderColorPicker() {
+  const wrap = document.getElementById('colorPicker');
+  wrap.innerHTML = COLORS.map(c => `
+    <div class="color-dot ${c === state.selectedColor ? 'selected' : ''}"
+         style="background:${c}" data-color="${c}"></div>
+  `).join('');
+
+  wrap.querySelectorAll('.color-dot').forEach(dot => {
+    dot.addEventListener('click', () => {
+      state.selectedColor = dot.dataset.color;
+      renderColorPicker();
+    });
+  });
+}
+
+/* ── 카테고리 추가 ── */
+document.getElementById('addCatBtn').addEventListener('click', () => {
+  const nameEl = document.getElementById('newCatName');
+  const name = nameEl.value.trim();
+  if (!name) return;
+  if (state.categories.length >= 12) { showToast('최대 12개까지 추가할 수 있어요'); return; }
+
+  const id = Date.now();
+  state.categories.push({ id, name, color: state.selectedColor });
+  save();
+  nameEl.value = '';
+  renderCatButtons();
+  renderColorPicker();
+  renderCatManageList();
+  showToast(`"${name}" 추가됨!`);
+});
+
+document.getElementById('newCatName').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') document.getElementById('addCatBtn').click();
+});
+
+/* ── 메모 자동저장 ── */
+let memoTimer;
+document.getElementById('memoArea').addEventListener('input', (e) => {
+  clearTimeout(memoTimer);
+  memoTimer = setTimeout(() => {
+    state.memos[state.selectedDate] = e.target.value;
+    save();
+    showToast('저장됨 ✓');
+  }, 800);
+});
+
+/* ── 달력 네비 ── */
+document.getElementById('prevMonth').addEventListener('click', () => {
+  state.calMonth--;
+  if (state.calMonth < 0) { state.calMonth = 11; state.calYear--; }
+  renderCalendar();
+});
+
+document.getElementById('nextMonth').addEventListener('click', () => {
+  state.calMonth++;
+  if (state.calMonth > 11) { state.calMonth = 0; state.calYear++; }
+  renderCalendar();
+});
+
+/* ── 토스트 ── */
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1600);
+}
+
+/* ── 서비스워커 등록 ── */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw_time-tracker.js')
+      .catch(err => console.warn('SW 등록 실패:', err));
+  });
+}
+
+/* ── 초기화 ── */
+function init() {
+  load();
+  const now = new Date();
+  state.calYear = now.getFullYear();
+  state.calMonth = now.getMonth();
+  renderColorPicker();
+  renderCatManageList();
+  selectDate(todayStr());
+}
+
+init();
+</script>
+</body>
+</html>

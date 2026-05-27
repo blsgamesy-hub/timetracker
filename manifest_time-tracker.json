@@ -1,0 +1,25 @@
+{
+  "name": "나의 하루 트래커",
+  "short_name": "하루 트래커",
+  "description": "카테고리별로 하루 시간을 기록하는 타임 트래커",
+  "start_url": "./time-tracker.html",
+  "display": "standalone",
+  "background_color": "#F5F0E8",
+  "theme_color": "#1C1917",
+  "lang": "ko",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "./icon_192_time-tracker.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icon_512_time-tracker.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
