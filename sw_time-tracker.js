@@ -1,4 +1,4 @@
-const CACHE_NAME = 'time-tracker-v1.2';
+const CACHE_NAME = 'time-tracker-v2';
 const ASSETS = [
   './time-tracker.html',
   './manifest_time-tracker.json',
@@ -27,13 +27,24 @@ self.addEventListener('activate', (e) => {
   self.clients.claim();
 });
 
-// fetch: 캐시 우선, 없으면 네트워크
+// fetch: 네트워크 우선 → 실패 시 캐시 폴백
 self.addEventListener('fetch', (e) => {
   e.respondWith(
-    caches.match(e.request).then(cached => {
-      if (cached) return cached;
-      return fetch(e.request).then(res => {
-        // 구글폰트 등 외부 리소스도 캐시
+    fetch(e.request)
+      .then(res => {
+        // 성공하면 캐시 갱신 후 반환
+        if (res && res.status === 200) {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
+        }
+        return res;
+      })
+      .catch(() => {
+        // 오프라인이면 캐시에서
+        return caches.match(e.request);
+      })
+  );
+});
         if (res && res.status === 200 && res.type !== 'opaque') {
           const clone = res.clone();
           caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
