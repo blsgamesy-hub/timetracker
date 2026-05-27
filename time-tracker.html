@@ -45,19 +45,22 @@
 
   /* ── HEADER ── */
   header {
-    padding: 28px 36px 20px;
+    padding: 18px 24px 16px;
     border-bottom: 1.5px solid var(--border);
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 16px;
     background: var(--surface);
+    flex-wrap: nowrap;
   }
 
   header h1 {
     font-family: 'DM Serif Display', serif;
-    font-size: 2rem;
+    font-size: 1.6rem;
     letter-spacing: -0.5px;
     line-height: 1;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
   header .subtitle {
@@ -138,17 +141,27 @@
   }
   .cal-day:hover { background: var(--bg); }
   .cal-day.today { font-weight: 500; color: var(--accent); }
-  .cal-day.selected { background: var(--ink); color: #fff; }
-  .cal-day.has-data::after {
-    content: '';
-    display: block;
-    width: 4px; height: 4px;
-    background: var(--accent);
+  .cal-day.selected {
+    background: var(--ink);
+    color: #fff;
     border-radius: 50%;
-    margin: 2px auto 0;
+    font-weight: 700;
   }
-  .cal-day.selected::after { background: #fff; }
-  .cal-day.other-month { color: var(--ink-faint); }
+
+  /* 로그 있는 날: 숫자 굵게 */
+  .cal-day.has-data { font-weight: 700; }
+
+  /* 메모 있는 날: 타원 outline */
+  .cal-day.has-memo {
+    outline: 2px solid var(--ink);
+    outline-offset: -2px;
+    border-radius: 50%;
+  }
+  .cal-day.selected.has-memo {
+    outline: 2px solid #fff;
+  }
+
+  .cal-day.other-month { color: var(--ink-faint); font-weight: 400; }
 
   /* ── MAIN ── */
   .main {
@@ -338,6 +351,31 @@
     pointer-events: none;
     animation: popUp 0.6s ease forwards;
   }
+
+  /* 카테고리 관리 접기/펼치기 */
+  .manage-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+    padding: 2px 0;
+  }
+  .manage-toggle-arrow {
+    font-size: 0.7rem;
+    color: var(--ink-light);
+    transition: transform 0.22s;
+    display: inline-block;
+  }
+  .manage-toggle.open .manage-toggle-arrow { transform: rotate(180deg); }
+
+  .manage-body {
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .manage-body.open { display: flex; }
 
   /* 카테고리 관리 */
   .manage-row {
@@ -561,6 +599,62 @@
   .modal-btn.danger-btn { background: var(--accent); color: #fff; border-color: var(--accent); }
   .modal-btn.danger-btn:hover { opacity: 0.85; }
 
+  /* ── 리포트 ── */
+  .report-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  .report-tab {
+    padding: 6px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    background: var(--bg);
+    color: var(--ink-light);
+    transition: all 0.15s;
+  }
+  .report-tab.active {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+  }
+
+  .report-section {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 22px;
+  }
+
+  .report-period {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1rem;
+    margin-bottom: 4px;
+  }
+  .report-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--ink-light);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .report-bars { display: flex; flex-direction: column; gap: 10px; }
+
+  .report-total-row {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
   /* ── 섹션 구분선 ── */
   .section-divider {
     border: none;
@@ -662,15 +756,30 @@
 
     <!-- 카테고리 추가 + 관리 목록 -->
     <div class="section-block">
-      <div class="cat-section-title">카테고리 관리</div>
-      <!-- 추가 -->
-      <div class="manage-row">
-        <input class="manage-input" id="newCatName" placeholder="새 카테고리 이름" maxlength="12">
-        <button class="manage-btn" id="addCatBtn">추가</button>
+      <div class="manage-toggle" id="manageToggle">
+        <span class="cat-section-title" style="margin-bottom:0">카테고리 관리</span>
+        <span class="manage-toggle-arrow">▼</span>
       </div>
-      <div class="color-picker-row" id="colorPicker"></div>
-      <!-- 목록 -->
-      <div class="cat-list" id="catManageList"></div>
+      <div class="manage-body" id="manageBody">
+        <!-- 추가 -->
+        <div class="manage-row">
+          <input class="manage-input" id="newCatName" placeholder="새 카테고리 이름" maxlength="12">
+          <button class="manage-btn" id="addCatBtn">추가</button>
+        </div>
+        <div class="color-picker-row" id="colorPicker"></div>
+        <!-- 목록 -->
+        <div class="cat-list" id="catManageList"></div>
+      </div>
+    </div>
+
+    <!-- 리포트 -->
+    <div class="section-block">
+      <div class="cat-section-title">리포트</div>
+      <div class="report-tabs">
+        <button class="report-tab active" data-period="week">이번 주</button>
+        <button class="report-tab" data-period="month">이번 달</button>
+      </div>
+      <div class="report-section" id="reportSection"></div>
     </div>
   </main>
 </div>
@@ -816,6 +925,9 @@ function renderCalendar() {
     if (state.logs[key] && Object.values(state.logs[key]).some(v => v > 0)) {
       el.classList.add('has-data');
     }
+    if (state.memos[key] && state.memos[key].trim()) {
+      el.classList.add('has-memo');
+    }
     el.addEventListener('click', () => selectDate(key));
     grid.appendChild(el);
   }
@@ -888,11 +1000,62 @@ function renderCatButtons() {
   `).join('');
 
   grid.querySelectorAll('.cat-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const id = Number(btn.dataset.id);
-      addTime(id, btn);
-    });
+    let holdTimer = null;
+    let didHold = false;
+
+    const startHold = (e) => {
+      didHold = false;
+      holdTimer = setTimeout(() => {
+        didHold = true;
+        subtractTime(Number(btn.dataset.id), btn);
+      }, 400);
+    };
+
+    const cancelHold = () => {
+      clearTimeout(holdTimer);
+    };
+
+    const handleClick = (e) => {
+      if (didHold) return;
+      addTime(Number(btn.dataset.id), btn);
+    };
+
+    btn.addEventListener('mousedown', startHold);
+    btn.addEventListener('touchstart', startHold, { passive: true });
+    btn.addEventListener('mouseup', cancelHold);
+    btn.addEventListener('mouseleave', cancelHold);
+    btn.addEventListener('touchend', cancelHold);
+    btn.addEventListener('click', handleClick);
   });
+}
+
+/* ── -30분 빼기 ── */
+function subtractTime(catId, btnEl) {
+  if (!state.logs[state.selectedDate]) { showToast('기록이 없어요'); return; }
+  const cur = state.logs[state.selectedDate][catId] || 0;
+  if (cur <= 0) { showToast('이미 0이에요'); return; }
+  state.logs[state.selectedDate][catId] = Math.max(0, cur - 30);
+  if (state.logs[state.selectedDate][catId] === 0) {
+    delete state.logs[state.selectedDate][catId];
+  }
+  save();
+
+  // 팝업 애니메이션
+  if (btnEl) {
+    const pop = document.createElement('span');
+    pop.className = 'add-pop';
+    pop.textContent = '−30m';
+    pop.style.color = state.categories.find(c => c.id === catId)?.color || '#333';
+    btnEl.appendChild(pop);
+    setTimeout(() => pop.remove(), 650);
+  }
+
+  const timeEl = document.getElementById(`catTime_${catId}`);
+  if (timeEl) timeEl.textContent = fmtMin(state.logs[state.selectedDate][catId] || 0);
+  renderBars();
+  renderCalendar();
+  renderReport();
+  showToast('−30분');
 }
 
 /* ── +30분 추가 ── */
@@ -916,6 +1079,7 @@ function addTime(catId, btnEl) {
 
   renderBars();
   renderCalendar();
+  renderReport();
   showToast('저장됨 ✓');
 }
 
@@ -1031,6 +1195,109 @@ document.getElementById('deleteModal').addEventListener('click', (e) => {
     document.getElementById('deleteModal').classList.remove('open');
 });
 
+/* ── 카테고리 관리 접기/펼치기 ── */
+document.getElementById('manageToggle').addEventListener('click', () => {
+  const toggle = document.getElementById('manageToggle');
+  const body = document.getElementById('manageBody');
+  toggle.classList.toggle('open');
+  body.classList.toggle('open');
+});
+
+/* ── 리포트 ── */
+let reportPeriod = 'week';
+
+document.querySelectorAll('.report-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.report-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    reportPeriod = tab.dataset.period;
+    renderReport();
+  });
+});
+
+function getWeekRange() {
+  const today = new Date();
+  const dow = today.getDay(); // 0=일
+  const mon = new Date(today); mon.setDate(today.getDate() - ((dow + 6) % 7));
+  const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+  return { start: mon, end: sun };
+}
+
+function getMonthRange() {
+  const today = new Date();
+  const start = new Date(today.getFullYear(), today.getMonth(), 1);
+  const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  return { start, end };
+}
+
+function datesBetween(start, end) {
+  const dates = [];
+  const cur = new Date(start);
+  while (cur <= end) {
+    const y = cur.getFullYear();
+    const m = String(cur.getMonth()+1).padStart(2,'0');
+    const d = String(cur.getDate()).padStart(2,'0');
+    dates.push(`${y}-${m}-${d}`);
+    cur.setDate(cur.getDate() + 1);
+  }
+  return dates;
+}
+
+function fmtDateShort(d) {
+  const months = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  return `${months[d.getMonth()]} ${d.getDate()}일`;
+}
+
+function renderReport() {
+  const sec = document.getElementById('reportSection');
+  const { start, end } = reportPeriod === 'week' ? getWeekRange() : getMonthRange();
+  const dates = datesBetween(start, end);
+
+  // 카테고리별 합산
+  const totals = {}; // catId → minutes
+  let grandTotal = 0;
+  dates.forEach(dk => {
+    const log = state.logs[dk] || {};
+    Object.entries(log).forEach(([cid, min]) => {
+      totals[cid] = (totals[cid] || 0) + min;
+      grandTotal += min;
+    });
+  });
+
+  const periodLabel = reportPeriod === 'week'
+    ? `${fmtDateShort(start)} — ${fmtDateShort(end)}`
+    : `${start.getFullYear()}년 ${start.getMonth()+1}월`;
+
+  const activeCats = state.categories
+    .map(c => ({ ...c, min: totals[c.id] || 0 }))
+    .filter(c => c.min > 0)
+    .sort((a,b) => b.min - a.min);
+
+  const maxMin = activeCats.length ? Math.max(...activeCats.map(c => c.min)) : 1;
+
+  const barsHTML = activeCats.length === 0
+    ? '<div class="empty-state" style="padding:20px 0">이 기간엔 기록이 없어요</div>'
+    : activeCats.map(c => `
+        <div class="bar-row">
+          <div class="bar-label" title="${c.name}">${c.name}</div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:${(c.min/maxMin)*100}%; background:${c.color}"></div>
+          </div>
+          <div class="bar-time">${fmtMin(c.min)}</div>
+        </div>
+      `).join('');
+
+  sec.innerHTML = `
+    <div class="report-period">${periodLabel}</div>
+    <div class="report-sub">${reportPeriod === 'week' ? '주간' : '월간'} 리포트 · ${dates.length}일</div>
+    <div class="report-bars">${barsHTML}</div>
+    <div class="report-total-row">
+      <span class="total-label">총 기록</span>
+      <span class="total-val">${grandTotal > 0 ? fmtMin(grandTotal) : '0m'}</span>
+    </div>
+  `;
+}
+
 /* ── 색상 피커 ── */
 function renderColorPicker() {
   const wrap = document.getElementById('colorPicker');
@@ -1075,6 +1342,7 @@ document.getElementById('memoArea').addEventListener('input', (e) => {
   memoTimer = setTimeout(() => {
     state.memos[state.selectedDate] = e.target.value;
     save();
+    renderCalendar();
     showToast('저장됨 ✓');
   }, 800);
 });
@@ -1102,12 +1370,16 @@ function showToast(msg) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 1600);
 }
 
-/* ── 서비스워커 등록 ── */
+/* ── 서비스워커 등록 (로컬/배포 환경에서만) ── */
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw_time-tracker.js')
-      .catch(err => console.warn('SW 등록 실패:', err));
-  });
+  const host = location.hostname;
+  const isProd = host === 'localhost' || host.endsWith('github.io') || host.endsWith('github.com');
+  if (isProd) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw_time-tracker.js')
+        .catch(err => console.warn('SW 등록 실패:', err));
+    });
+  }
 }
 
 /* ── 초기화 ── */
@@ -1119,6 +1391,7 @@ function init() {
   renderColorPicker();
   renderCatManageList();
   selectDate(todayStr());
+  renderReport();
 }
 
 init();
