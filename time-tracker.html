@@ -869,6 +869,197 @@
     .sidebar { border-right: none; border-bottom: 1.5px solid var(--border); }
     .main { padding: 16px; }
   }
+
+  .plan-view-btn {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.63rem;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    color: var(--ink-light);
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .plan-view-btn.active {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+  }
+
+  /* 2단 타임라인 */
+  .tl-dual-labels {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+    padding-left: 36px;
+  }
+  .tl-dual-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 4px;
+  }
+  .tl-dual-tag-plan {
+    background: #EEE9FF;
+    color: #6B5BA8;
+  }
+  /* ── MAIN WRAP ── */
+  .main-wrap {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  .mode-toggle-wrap {
+    display: flex;
+    gap: 6px;
+    padding: 14px 32px 0;
+    background: var(--surface);
+    border-bottom: 1.5px solid var(--border);
+    flex-shrink: 0;
+  }
+  .mode-tab {
+    padding: 7px 18px;
+    border: 1.5px solid var(--border);
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.07em;
+    cursor: pointer;
+    background: var(--border);
+    color: var(--ink-light);
+    transition: all 0.15s;
+    position: relative;
+    bottom: -1.5px;
+  }
+  .mode-tab.active {
+    background: var(--bg);
+    color: var(--ink);
+    border-color: var(--border);
+    border-bottom: 1.5px solid var(--bg);
+    font-weight: 500;
+  }
+  .mode-tabs-line { display: none; }
+
+  /* ── 계획 모드 목표 설정 ── */
+  .plan-unit-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .plan-unit-tab {
+    padding: 4px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.63rem;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    background: var(--bg);
+    color: var(--ink-light);
+    transition: all 0.15s;
+  }
+  .plan-unit-tab.active {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+  }
+  .plan-goal-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .plan-goal-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .plan-goal-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .plan-goal-name {
+    font-size: 0.8rem;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .plan-goal-input {
+    width: 56px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    background: var(--bg);
+    color: var(--ink);
+    outline: none;
+    text-align: center;
+    transition: border-color 0.15s;
+  }
+  .plan-goal-input:focus { border-color: var(--ink-light); }
+  .plan-goal-unit {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--ink-light);
+    width: 16px;
+    flex-shrink: 0;
+  }
+
+  /* 달성률 바 */
+  .achieve-bar-track {
+    flex: 1;
+    height: 16px;
+    background: var(--bg);
+    border-radius: 3px;
+    overflow: visible;
+    position: relative;
+  }
+  .achieve-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.4s ease;
+    min-width: 2px;
+    position: relative;
+    z-index: 0;
+  }
+    transition: width 0.4s ease;
+    min-width: 2px;
+  }
+  .achieve-bar-goal-line {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 2px;
+    background: var(--ink);
+    opacity: 0.25;
+    border-radius: 1px;
+  }
+  .achieve-pct {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    width: 44px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .achieve-pct.done { color: #6BAA75; font-weight: 500; }
+  .plan-unit-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--ink-light);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
 </style>
 </head>
 <body>
@@ -899,8 +1090,16 @@
     </div>
   </aside>
 
-  <!-- MAIN -->
-  <main class="main">
+  <!-- 모드 탭 + 메인 영역 -->
+  <div class="main-wrap">
+    <!-- 모드 탭 -->
+    <div class="mode-toggle-wrap">
+      <button class="mode-tab active" id="tabRecord">📋 기록</button>
+      <button class="mode-tab" id="tabPlan">🎯 계획</button>
+    </div>
+
+  <!-- MAIN: 기록 모드 -->
+  <main class="main" id="mainRecord">
     <div class="date-label" id="dateLabel"></div>
 
     <!-- 1. 시간 분포 -->
@@ -917,11 +1116,19 @@
 
     <!-- 2. 24시간 타임라인 -->
     <div class="timeline-section">
-      <div class="timeline-top">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
         <span class="viz-title" style="margin-bottom:0">24시간 타임라인</span>
-        <div class="timeline-legend" id="tlLegend"></div>
+        <button class="plan-view-btn" id="planViewBtn">📋 계획 보기</button>
       </div>
-      <div class="tl-grid" id="tlGrid"></div>
+      <div class="timeline-legend" id="tlLegend" style="margin-bottom:12px;"></div>
+      <!-- 계획 보기 ON: 2단 그리드 -->
+      <div id="tlDualWrap" style="display:none;">
+        <div class="tl-grid" id="tlGridDualPlan"></div>
+      </div>
+      <!-- 계획 보기 OFF: 기본 단일 그리드 -->
+      <div id="tlSingleWrap">
+        <div class="tl-grid" id="tlGrid"></div>
+      </div>
     </div>
 
     <!-- 3. 선택된 시간대 -->
@@ -960,6 +1167,54 @@
       <div id="reportContent"></div>
     </div>
   </main>
+
+  <!-- MAIN: 계획 모드 -->
+  <main class="main" id="mainPlan" style="display:none;">
+
+    <!-- 달성률 -->
+    <div class="viz-section" id="planAchieveSection">
+      <div class="viz-title">📊 달성률</div>
+      <div class="plan-unit-label" id="planAchieveLabel"></div>
+      <div class="bars-wrap" id="planAchieveBars"></div>
+    </div>
+
+    <!-- 목표 설정 -->
+    <div class="manage-section">
+      <div class="manage-toggle" id="planGoalToggle">
+        <span class="section-label" style="margin-bottom:0">🎯 목표 설정</span>
+        <span class="manage-arrow">▼</span>
+      </div>
+      <div class="manage-body" id="planGoalBody">
+        <div class="plan-unit-tabs" id="planUnitTabs" style="margin-top:4px;">
+          <button class="plan-unit-tab active" data-unit="day">하루</button>
+          <button class="plan-unit-tab" data-unit="week">주간</button>
+          <button class="plan-unit-tab" data-unit="month">월간</button>
+        </div>
+        <div class="plan-goal-list" id="planGoalList"></div>
+      </div>
+    </div>
+
+    <!-- 계획 타임라인 -->
+    <div class="timeline-section">
+      <div class="timeline-top">
+        <span class="viz-title" style="margin-bottom:0">계획 타임라인</span>
+        <div class="timeline-legend" id="planTlLegend"></div>
+      </div>
+      <div class="tl-grid" id="planTlGrid"></div>
+    </div>
+
+    <!-- 계획 시간대 패널 -->
+    <div class="selected-panel dimmed" id="planSelectedPanel">
+      <div class="panel-hour-label" id="planPanelHourLabel">—</div>
+      <div class="panel-slots-preview" id="planPanelSlotsPreview"></div>
+      <div class="cat-grid" id="planCatGrid"></div>
+      <div class="panel-actions">
+        <button class="erase-btn" id="planEraseBtn">← 지우기</button>
+      </div>
+    </div>
+
+  </main>
+  </div><!-- /main-wrap -->
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1044,8 +1299,10 @@ let state = {
   ],
   // timeline: { 'YYYY-MM-DD': { 'H-S': catId } }  H=0~23, S=0~3
   timeline: {},
+  planTimeline: {},
   memos: {},
   emojis: [...DEFAULT_EMOJIS],
+  goals: { day: {}, week: {}, month: {} },
   calYear: 0,
   calMonth: 0,
   selectedDate: '',
@@ -1058,8 +1315,10 @@ function save() {
   localStorage.setItem('dayTracker_v2', JSON.stringify({
     categories: state.categories,
     timeline: state.timeline,
+    planTimeline: state.planTimeline,
     memos: state.memos,
     emojis: state.emojis,
+    goals: state.goals,
   }));
 }
 function load() {
@@ -1067,8 +1326,10 @@ function load() {
     const d = JSON.parse(localStorage.getItem('dayTracker_v2') || '{}');
     if (d.categories) state.categories = d.categories;
     if (d.timeline) state.timeline = d.timeline;
+    if (d.planTimeline) state.planTimeline = d.planTimeline;
     if (d.memos) state.memos = d.memos;
     if (d.emojis) state.emojis = d.emojis;
+    if (d.goals) state.goals = d.goals;
   } catch(e) {}
 }
 
@@ -1199,32 +1460,32 @@ function renderBars() {
 }
 
 /* ── 타임라인 ── */
-function renderTimeline() {
-  const grid = document.getElementById('tlGrid');
-  const tl = state.timeline[state.selectedDate] || {};
-  grid.innerHTML = '';
+let planViewOn = false;
 
+document.getElementById('planViewBtn').addEventListener('click', () => {
+  planViewOn = !planViewOn;
+  document.getElementById('planViewBtn').classList.toggle('active', planViewOn);
+  renderTimeline();
+});
+
+function buildTlRows(gridEl, tlData, selectedHour, onHourClick, interactive) {
+  gridEl.innerHTML = '';
   for (let h = 0; h < 24; h++) {
     const row = document.createElement('div');
     row.className = 'tl-row';
 
-    // 시간 레이블
     const hourEl = document.createElement('div');
-    hourEl.className = 'tl-hour' + (state.selectedHour === h ? ' selected' : '');
+    hourEl.className = 'tl-hour' + (selectedHour === h ? ' selected' : '');
     hourEl.textContent = String(h).padStart(2,'0');
-    hourEl.addEventListener('click', () => {
-      state.selectedHour = (state.selectedHour === h) ? null : h;
-      renderTimeline();
-      renderSelectedPanel();
-    });
+    if (onHourClick) {
+      hourEl.addEventListener('click', () => onHourClick(h));
+    }
     row.appendChild(hourEl);
 
-    // 4개 슬롯
     for (let s = 0; s < SLOTS_PER_HOUR; s++) {
       const key = tlKey(h, s);
-      const catId = tl[key];
+      const catId = tlData[key];
       const cat = catId ? getCat(catId) : null;
-
       const slot = document.createElement('div');
       slot.className = 'tl-slot' + (cat ? ' filled' : '');
       slot.dataset.hour = h;
@@ -1238,12 +1499,117 @@ function renderTimeline() {
       }
       row.appendChild(slot);
     }
+    gridEl.appendChild(row);
+  }
+}
 
-    grid.appendChild(row);
+function renderTimeline() {
+  const tl = state.timeline[state.selectedDate] || {};
+  const planTl = state.planTimeline[state.selectedDate] || {};
+
+  const singleWrap = document.getElementById('tlSingleWrap');
+  const dualWrap = document.getElementById('tlDualWrap');
+
+  if (planViewOn) {
+    singleWrap.style.display = 'none';
+    dualWrap.style.display = '';
+
+    const dualGrid = document.getElementById('tlGridDualPlan');
+    dualGrid.innerHTML = '';
+
+    for (let h = 0; h < 24; h++) {
+      // ── 계획 행 ── (시간 레이블 없음)
+      const planRow = document.createElement('div');
+      planRow.className = 'tl-row';
+
+      const planHourEl = document.createElement('div');
+      planHourEl.className = 'tl-hour';
+      planHourEl.style.cssText = 'cursor:default;visibility:hidden;';
+      planRow.appendChild(planHourEl);
+
+      for (let s = 0; s < SLOTS_PER_HOUR; s++) {
+        const catId = planTl[tlKey(h, s)];
+        const cat = catId ? getCat(catId) : null;
+        const slot = document.createElement('div');
+        slot.className = 'tl-slot' + (cat ? ' filled' : '');
+        slot.style.height = '16px';
+        slot.style.opacity = '0.6';
+        slot.style.pointerEvents = 'none';
+        if (cat) {
+          slot.style.background = cat.color;
+          const label = document.createElement('div');
+          label.className = 'tl-slot-label';
+          label.textContent = cat.name;
+          slot.appendChild(label);
+        }
+        planRow.appendChild(slot);
+      }
+      dualGrid.appendChild(planRow);
+
+      // ── 기록 행 ── (시간 레이블 + 선택 기능)
+      const actualRow = document.createElement('div');
+      actualRow.className = 'tl-row';
+      actualRow.style.marginBottom = '5px';
+
+      const actualHourEl = document.createElement('div');
+      actualHourEl.className = 'tl-hour' + (state.selectedHour === h ? ' selected' : '');
+      actualHourEl.textContent = String(h).padStart(2,'0');
+      actualHourEl.addEventListener('click', () => {
+        state.selectedHour = (state.selectedHour === h) ? null : h;
+        renderTimeline();
+        renderSelectedPanel();
+      });
+      actualRow.appendChild(actualHourEl);
+
+      for (let s = 0; s < SLOTS_PER_HOUR; s++) {
+        const catId = tl[tlKey(h, s)];
+        const cat = catId ? getCat(catId) : null;
+        const slot = document.createElement('div');
+        slot.className = 'tl-slot' + (cat ? ' filled' : '');
+        slot.dataset.hour = h;
+        slot.dataset.slot = s;
+        slot.style.height = '20px';
+        if (cat) {
+          slot.style.background = cat.color;
+          const label = document.createElement('div');
+          label.className = 'tl-slot-label';
+          label.textContent = cat.name;
+          slot.appendChild(label);
+        }
+        actualRow.appendChild(slot);
+      }
+      dualGrid.appendChild(actualRow);
+    }
+
+    setupDragOn(dualGrid);
+
+  } else {
+    singleWrap.style.display = '';
+    dualWrap.style.display = 'none';
+
+    buildTlRows(
+      document.getElementById('tlGrid'),
+      tl, state.selectedHour,
+      (h) => {
+        state.selectedHour = (state.selectedHour === h) ? null : h;
+        renderTimeline();
+        renderSelectedPanel();
+      },
+      true
+    );
+    setupDragOn(document.getElementById('tlGrid'));
   }
 
-  // 드래그 이벤트 연결
-  setupDrag();
+  // 범례
+  const totals = {};
+  Object.values(tl).forEach(catId => { totals[catId] = (totals[catId] || 0) + 1; });
+  const active = state.categories.filter(c => totals[c.id]);
+  document.getElementById('tlLegend').innerHTML = active.map(c => `
+    <div class="legend-item">
+      <div class="legend-dot" style="background:${c.color}"></div>
+      <span>${c.name}</span>
+    </div>
+  `).join('');
 }
 
 /* ── 선택된 시간대 패널 ── */
@@ -1370,19 +1736,22 @@ let longPressReady = false;  // 1초 꾹 누름 완료 여부
 function slotIndex(h, s) { return h * SLOTS_PER_HOUR + s; }
 function indexToHS(idx) { return { h: Math.floor(idx / SLOTS_PER_HOUR), s: idx % SLOTS_PER_HOUR }; }
 
-function setupDrag() {
-  const grid = document.getElementById('tlGrid');
-
-  // 마우스: 항상 동작
+function setupDragOn(grid) {
+  // 기존 이벤트 중복 방지: 새 그리드마다 교체
+  if (window._dragGrid) {
+    window._dragGrid.removeEventListener('mousedown', onDragStart);
+    window._dragGrid.removeEventListener('touchstart', onTouchStart);
+  }
+  window._dragGrid = grid;
   grid.addEventListener('mousedown', onDragStart);
   window.addEventListener('mousemove', onDragMove);
   window.addEventListener('mouseup', onDragEnd);
-
-  // 터치: 롱프레스 후 드래그
   grid.addEventListener('touchstart', onTouchStart, { passive: false });
   window.addEventListener('touchmove', onTouchMove, { passive: false });
   window.addEventListener('touchend', onTouchEnd);
 }
+
+function setupDrag() { setupDragOn(document.getElementById('tlGrid')); }
 
 function getSlotFromEvent(e) {
   const el = e.target.closest('.tl-slot');
@@ -1390,8 +1759,9 @@ function getSlotFromEvent(e) {
   return { h: Number(el.dataset.hour), s: Number(el.dataset.slot) };
 }
 function getSlotFromPoint(x, y) {
+  const activeGrid = window._dragGrid || document.getElementById('tlGrid');
   const el = document.elementFromPoint(x, y)?.closest('.tl-slot');
-  if (!el) return null;
+  if (!el || !activeGrid.contains(el)) return null;
   return { h: Number(el.dataset.hour), s: Number(el.dataset.slot) };
 }
 
@@ -1875,6 +2245,461 @@ function init() {
   renderColorPicker();
   renderCatManageList();
   selectDate(todayStr());
+  initPlanMode();
+}
+
+/* ── 계획 모드 ── */
+
+let planMode = 'record'; // 'record' | 'plan'
+let planUnit = 'day';    // 'day' | 'week' | 'month'
+let planSelectedHour = null;
+
+/* 모드 탭 전환 */
+document.getElementById('tabRecord').addEventListener('click', () => switchMode('record'));
+document.getElementById('tabPlan').addEventListener('click', () => switchMode('plan'));
+
+function switchMode(mode) {
+  planMode = mode;
+  document.getElementById('tabRecord').classList.toggle('active', mode === 'record');
+  document.getElementById('tabPlan').classList.toggle('active', mode === 'plan');
+  document.getElementById('mainRecord').style.display = mode === 'record' ? '' : 'none';
+  document.getElementById('mainPlan').style.display = mode === 'plan' ? '' : 'none';
+  if (mode === 'plan') {
+    renderPlanGoalList();
+    renderPlanAchieve();
+    renderPlanTimeline();
+    renderPlanSelectedPanel();
+  }
+}
+
+document.getElementById('planGoalToggle').addEventListener('click', () => {
+  document.getElementById('planGoalToggle').classList.toggle('open');
+  document.getElementById('planGoalBody').classList.toggle('open');
+});
+
+/* 단위 탭 */
+document.querySelectorAll('.plan-unit-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.plan-unit-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    planUnit = tab.dataset.unit;
+    renderPlanGoalList();
+    renderPlanAchieve();
+  });
+});
+
+/* 목표 목록 렌더 */
+function renderPlanGoalList() {
+  const list = document.getElementById('planGoalList');
+  if (state.categories.length === 0) {
+    list.innerHTML = '<div class="empty-state">카테고리를 먼저 추가해주세요</div>';
+    return;
+  }
+  const goals = state.goals[planUnit] || {};
+  const unitLabel = planUnit === 'day' ? 'h/일' : planUnit === 'week' ? 'h/주' : 'h/월';
+  list.innerHTML = state.categories.map(c => `
+    <div class="plan-goal-row">
+      <div class="plan-goal-dot" style="background:${c.color}"></div>
+      <div class="plan-goal-name">${c.name}</div>
+      <input class="plan-goal-input" type="number" min="0" max="999" step="0.5"
+        data-catid="${c.id}"
+        value="${goals[c.id] ?? ''}"
+        placeholder="0">
+      <span class="plan-goal-unit">${unitLabel}</span>
+    </div>
+  `).join('');
+
+  list.querySelectorAll('.plan-goal-input').forEach(inp => {
+    inp.addEventListener('change', () => {
+      const catId = Number(inp.dataset.catid);
+      const val = parseFloat(inp.value);
+      if (!state.goals[planUnit]) state.goals[planUnit] = {};
+      if (isNaN(val) || val <= 0) {
+        delete state.goals[planUnit][catId];
+      } else {
+        state.goals[planUnit][catId] = val;
+      }
+      save();
+      renderPlanAchieve();
+      showToast('목표 저장됨 ✓');
+    });
+  });
+}
+
+/* 달성률 계산 & 렌더 */
+function getPlanAchieveData() {
+  const goals = state.goals[planUnit] || {};
+  if (Object.keys(goals).length === 0) return null;
+
+  // 기간 날짜 수집
+  let dates = [];
+  if (planUnit === 'day') {
+    dates = [state.selectedDate];
+  } else if (planUnit === 'week') {
+    const { start, end } = getWeekRange();
+    dates = datesBetween(start, end);
+  } else {
+    const { start, end } = getMonthRange();
+    dates = datesBetween(start, end);
+  }
+
+  // 실제 기록 합산 (분)
+  const actualMin = {};
+  dates.forEach(dk => {
+    const tl = state.timeline[dk] || {};
+    Object.values(tl).forEach(catId => {
+      actualMin[catId] = (actualMin[catId] || 0) + SLOT_MIN;
+    });
+  });
+
+  return state.categories
+    .filter(c => goals[c.id])
+    .map(c => {
+      const goalMin = goals[c.id] * 60;
+      const actual = actualMin[c.id] || 0;
+      const pct = Math.min(Math.round((actual / goalMin) * 100), 999);
+      return { ...c, goalMin, actual, pct, done: actual >= goalMin };
+    })
+    .sort((a, b) => b.pct - a.pct);
+}
+
+function renderPlanAchieve() {
+  const data = getPlanAchieveData();
+  const label = { day: '오늘 · 일간 달성률', week: '이번 주 · 주간 달성률', month: '이번 달 · 월간 달성률' }[planUnit];
+  document.getElementById('planAchieveLabel').textContent = label;
+
+  const wrap = document.getElementById('planAchieveBars');
+  if (!data || data.length === 0) {
+    wrap.innerHTML = '<div class="empty-state" style="padding:8px 0">목표를 설정하면 달성률이 표시돼요</div>';
+    return;
+  }
+
+  wrap.innerHTML = data.map(c => {
+    const fillW = Math.min(c.pct, 100);
+    const actualStr = fmtMin(c.actual);
+    const goalStr = fmtMin(c.goalMin);
+    return `
+      <div class="bar-row">
+        <div class="bar-label" title="${c.name}">${c.name}</div>
+        <div class="achieve-bar-track" style="height:20px;">
+          <div class="achieve-bar-fill" style="width:${fillW}%;background:${c.color};height:100%;"></div>
+          <div style="position:absolute;inset:0;display:flex;align-items:center;padding:0 7px;justify-content:space-between;pointer-events:none;">
+            <span style="font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--ink);white-space:nowrap;">${actualStr}</span>
+            <span style="font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--ink-light);white-space:nowrap;">/ ${goalStr}</span>
+          </div>
+        </div>
+        <div class="achieve-pct ${c.done ? 'done' : ''}">${c.pct}%${c.done ? ' ✓' : ''}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* 계획 타임라인 */
+function renderPlanTimeline() {
+  const grid = document.getElementById('planTlGrid');
+  const tl = state.planTimeline[state.selectedDate] || {};
+  grid.innerHTML = '';
+
+  for (let h = 0; h < 24; h++) {
+    const row = document.createElement('div');
+    row.className = 'tl-row';
+
+    const hourEl = document.createElement('div');
+    hourEl.className = 'tl-hour' + (planSelectedHour === h ? ' selected' : '');
+    hourEl.textContent = String(h).padStart(2,'0');
+    hourEl.addEventListener('click', () => {
+      planSelectedHour = (planSelectedHour === h) ? null : h;
+      renderPlanTimeline();
+      renderPlanSelectedPanel();
+    });
+    row.appendChild(hourEl);
+
+    for (let s = 0; s < SLOTS_PER_HOUR; s++) {
+      const key = tlKey(h, s);
+      const catId = tl[key];
+      const cat = catId ? getCat(catId) : null;
+      const slot = document.createElement('div');
+      slot.className = 'tl-slot' + (cat ? ' filled' : '');
+      slot.dataset.hour = h;
+      slot.dataset.slot = s;
+      if (cat) {
+        slot.style.background = cat.color;
+        const label = document.createElement('div');
+        label.className = 'tl-slot-label';
+        label.textContent = cat.name;
+        slot.appendChild(label);
+      }
+      row.appendChild(slot);
+    }
+    grid.appendChild(row);
+  }
+
+  // 범례
+  const legend = document.getElementById('planTlLegend');
+  const tl2 = state.planTimeline[state.selectedDate] || {};
+  const usedIds = [...new Set(Object.values(tl2))];
+  legend.innerHTML = usedIds.map(id => {
+    const c = getCat(id);
+    return c ? `<div class="legend-item"><div class="legend-dot" style="background:${c.color}"></div><span>${c.name}</span></div>` : '';
+  }).join('');
+
+  setupPlanDrag();
+}
+
+/* 계획 선택 패널 */
+function renderPlanSelectedPanel() {
+  const panel = document.getElementById('planSelectedPanel');
+  const h = planSelectedHour;
+  if (h === null) {
+    panel.classList.add('dimmed');
+    document.getElementById('planPanelHourLabel').textContent = '—';
+    document.getElementById('planPanelSlotsPreview').innerHTML = '';
+    document.getElementById('planCatGrid').innerHTML = '';
+    return;
+  }
+  panel.classList.remove('dimmed');
+  document.getElementById('planPanelHourLabel').textContent = fmtHour(h);
+
+  const tl = state.planTimeline[state.selectedDate] || {};
+  const preview = document.getElementById('planPanelSlotsPreview');
+  preview.innerHTML = '';
+  for (let s = 0; s < SLOTS_PER_HOUR; s++) {
+    const key = tlKey(h, s);
+    const catId = tl[key];
+    const cat = catId ? getCat(catId) : null;
+    const pip = document.createElement('div');
+    pip.className = 'panel-slot-pip' + (cat ? ' filled' : '');
+    if (cat) pip.style.background = cat.color;
+    preview.appendChild(pip);
+  }
+
+  const catGrid = document.getElementById('planCatGrid');
+  catGrid.innerHTML = state.categories.map(c => `
+    <button class="cat-btn" data-catid="${c.id}" style="padding-left:14px;">
+      <span style="position:absolute;left:0;top:0;bottom:0;width:3px;background:${c.color};border-radius:7px 0 0 7px;"></span>
+      ${c.name}
+    </button>
+  `).join('');
+  catGrid.querySelectorAll('.cat-btn').forEach(btn => {
+    btn.addEventListener('click', () => fillPlanSlot(h, Number(btn.dataset.catid)));
+  });
+}
+
+function fillPlanSlot(hour, catId) {
+  if (!state.planTimeline[state.selectedDate]) state.planTimeline[state.selectedDate] = {};
+  const tl = state.planTimeline[state.selectedDate];
+  let targetSlot = null;
+  for (let s = 0; s < SLOTS_PER_HOUR; s++) {
+    if (!tl[tlKey(hour, s)]) { targetSlot = s; break; }
+  }
+  if (targetSlot !== null) {
+    tl[tlKey(hour, targetSlot)] = catId;
+    save();
+    renderPlanTimeline();
+    renderPlanSelectedPanel();
+    const cat = getCat(catId);
+    showToast(`계획 · ${String(hour).padStart(2,'0')}시 · ${cat?.name} +${SLOT_MIN}m`);
+  } else {
+    const nextHour = hour + 1;
+    if (nextHour >= 24) { showToast('23시까지만 계획할 수 있어요'); return; }
+    planSelectedHour = nextHour;
+    if (!state.planTimeline[state.selectedDate]) state.planTimeline[state.selectedDate] = {};
+    const nextTl = state.planTimeline[state.selectedDate];
+    let nextSlot = null;
+    for (let s = 0; s < SLOTS_PER_HOUR; s++) {
+      if (!nextTl[tlKey(nextHour, s)]) { nextSlot = s; break; }
+    }
+    if (nextSlot !== null) {
+      nextTl[tlKey(nextHour, nextSlot)] = catId;
+      save();
+      renderPlanTimeline();
+      renderPlanSelectedPanel();
+      const cat = getCat(catId);
+      showToast(`→ ${String(nextHour).padStart(2,'0')}시로 이동 · ${cat?.name} +${SLOT_MIN}m`);
+    }
+  }
+}
+
+document.getElementById('planEraseBtn').addEventListener('click', () => {
+  const h = planSelectedHour;
+  if (h === null) return;
+  const tl = state.planTimeline[state.selectedDate];
+  if (!tl) { showToast('계획이 없어요'); return; }
+  for (let s = SLOTS_PER_HOUR - 1; s >= 0; s--) {
+    const key = tlKey(h, s);
+    if (tl[key]) {
+      delete tl[key];
+      save();
+      renderPlanTimeline();
+      renderPlanSelectedPanel();
+      showToast(`−${SLOT_MIN}m 삭제됨`);
+      return;
+    }
+  }
+  showToast('이 시간대엔 계획이 없어요');
+});
+
+/* 계획 타임라인 드래그 */
+let planDragStart = null, planDragEnd = null, planIsDragging = false;
+let planPendingRange = [], planLongPressTimer = null, planLongPressReady = false;
+
+function setupPlanDrag() {
+  const grid = document.getElementById('planTlGrid');
+  grid.addEventListener('mousedown', onPlanDragStart);
+  window.addEventListener('mousemove', onPlanDragMove);
+  window.addEventListener('mouseup', onPlanDragEnd);
+  grid.addEventListener('touchstart', onPlanTouchStart, { passive: false });
+  window.addEventListener('touchmove', onPlanTouchMove, { passive: false });
+  window.addEventListener('touchend', onPlanTouchEnd);
+}
+function getPlanSlotFromEvent(e) {
+  const el = e.target.closest('.tl-slot');
+  if (!el) return null;
+  return { h: Number(el.dataset.hour), s: Number(el.dataset.slot) };
+}
+function getPlanSlotFromPoint(x, y) {
+  const el = document.elementFromPoint(x, y)?.closest('#planTlGrid .tl-slot');
+  if (!el) return null;
+  return { h: Number(el.dataset.hour), s: Number(el.dataset.slot) };
+}
+function onPlanDragStart(e) {
+  const pos = getPlanSlotFromEvent(e);
+  if (!pos) return;
+  planDragStart = pos; planDragEnd = pos; planIsDragging = false;
+  highlightPlanDrag();
+}
+function onPlanDragMove(e) {
+  if (!planDragStart) return;
+  const pos = getPlanSlotFromPoint(e.clientX, e.clientY);
+  if (!pos) return;
+  if (pos.h !== planDragEnd?.h || pos.s !== planDragEnd?.s) {
+    planIsDragging = true; planDragEnd = pos; highlightPlanDrag();
+  }
+}
+function onPlanDragEnd(e) {
+  if (!planDragStart) return;
+  if (planIsDragging && planDragEnd) openPlanDragSheet();
+  clearPlanDragHighlight();
+  planDragStart = null; planDragEnd = null; planIsDragging = false;
+}
+function onPlanTouchStart(e) {
+  const touch = e.touches[0];
+  const pos = getPlanSlotFromPoint(touch.clientX, touch.clientY);
+  if (!pos) return;
+  planLongPressReady = false;
+  planLongPressTimer = setTimeout(() => {
+    planLongPressReady = true;
+    planDragStart = pos; planDragEnd = pos; planIsDragging = false;
+    const el = document.querySelector(`#planTlGrid .tl-slot[data-hour="${pos.h}"][data-slot="${pos.s}"]`);
+    if (el) el.classList.add('longpress-ready');
+    document.getElementById('planTlGrid').style.touchAction = 'none';
+  }, 1000);
+}
+function onPlanTouchMove(e) {
+  if (!planLongPressReady || !planDragStart) {
+    if (planLongPressTimer) { clearTimeout(planLongPressTimer); planLongPressTimer = null; }
+    return;
+  }
+  e.preventDefault();
+  const touch = e.touches[0];
+  const pos = getPlanSlotFromPoint(touch.clientX, touch.clientY);
+  if (!pos) return;
+  if (pos.h !== planDragEnd?.h || pos.s !== planDragEnd?.s) {
+    planIsDragging = true; planDragEnd = pos; highlightPlanDrag();
+  }
+}
+function onPlanTouchEnd(e) {
+  clearTimeout(planLongPressTimer); planLongPressTimer = null;
+  document.querySelectorAll('#planTlGrid .tl-slot.longpress-ready').forEach(el => el.classList.remove('longpress-ready'));
+  document.getElementById('planTlGrid').style.touchAction = '';
+  if (planLongPressReady && planIsDragging && planDragEnd) openPlanDragSheet();
+  planLongPressReady = false;
+  clearPlanDragHighlight();
+  planDragStart = null; planDragEnd = null; planIsDragging = false;
+}
+function getPlanDragRange() {
+  if (!planDragStart || !planDragEnd) return [];
+  const a = slotIndex(planDragStart.h, planDragStart.s);
+  const b = slotIndex(planDragEnd.h, planDragEnd.s);
+  const min = Math.min(a,b), max = Math.max(a,b);
+  const result = [];
+  for (let i = min; i <= max; i++) result.push(indexToHS(i));
+  return result;
+}
+function highlightPlanDrag() {
+  clearPlanDragHighlight();
+  getPlanDragRange().forEach(({ h, s }) => {
+    const slot = document.querySelector(`#planTlGrid .tl-slot[data-hour="${h}"][data-slot="${s}"]`);
+    if (slot) slot.classList.add('drag-over');
+  });
+}
+function clearPlanDragHighlight() {
+  document.querySelectorAll('#planTlGrid .tl-slot.drag-over').forEach(el => el.classList.remove('drag-over'));
+}
+
+/* 계획 드래그 시트 (기존 dragCatModal 재활용) */
+function openPlanDragSheet() {
+  const range = getPlanDragRange();
+  if (range.length === 0) return;
+  planPendingRange = range;
+  const first = range[0], last = range[range.length - 1];
+  const startLabel = `${String(first.h).padStart(2,'0')}:${['00','15','30','45'][first.s]}`;
+  const endH = last.s === 3 ? last.h + 1 : last.h;
+  const endM = ['15','30','45','00'][last.s];
+  const endLabel = `${String(endH).padStart(2,'0')}:${endM}`;
+  document.getElementById('dragSheetRange').textContent =
+    `계획 · ${startLabel} — ${endLabel} (${range.length * SLOT_MIN}분)`;
+  const catGrid = document.getElementById('dragCatGrid');
+  catGrid.innerHTML = state.categories.map(c => `
+    <button class="cat-btn" data-catid="${c.id}" style="padding-left:14px;">
+      <span style="position:absolute;left:0;top:0;bottom:0;width:3px;background:${c.color};border-radius:7px 0 0 7px;"></span>
+      ${c.name}
+    </button>
+  `).join('');
+  catGrid.querySelectorAll('.cat-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      fillPlanDragRange(planPendingRange, Number(btn.dataset.catid));
+      closePlanDragSheet();
+    });
+  });
+  // 지우기 버튼 교체
+  const eraseBtn = document.getElementById('dragSheetErase');
+  eraseBtn.onclick = () => {
+    if (!state.planTimeline[state.selectedDate]) { closePlanDragSheet(); return; }
+    const tl = state.planTimeline[state.selectedDate];
+    planPendingRange.forEach(({ h, s }) => { delete tl[tlKey(h, s)]; });
+    save(); renderPlanTimeline(); closePlanDragSheet();
+    showToast(`${planPendingRange.length * SLOT_MIN}분 삭제됨`);
+  };
+  document.getElementById('dragCatModal').classList.add('open');
+}
+function closePlanDragSheet() {
+  document.getElementById('dragCatModal').classList.remove('open');
+  planPendingRange = [];
+  // 지우기 버튼 원상복구
+  document.getElementById('dragSheetErase').onclick = null;
+  document.getElementById('dragSheetErase').addEventListener('click', () => {
+    const range = pendingDragRange;
+    if (!state.timeline[state.selectedDate]) { closeDragSheet(); return; }
+    const tl = state.timeline[state.selectedDate];
+    range.forEach(({ h, s }) => { delete tl[tlKey(h, s)]; });
+    save(); renderTimeline(); renderBars(); renderSelectedPanel(); renderCalendar();
+    closeDragSheet();
+    showToast(`${range.length * SLOT_MIN}분 삭제됨`);
+  });
+}
+function fillPlanDragRange(range, catId) {
+  if (!state.planTimeline[state.selectedDate]) state.planTimeline[state.selectedDate] = {};
+  const tl = state.planTimeline[state.selectedDate];
+  range.forEach(({ h, s }) => { tl[tlKey(h, s)] = catId; });
+  save(); renderPlanTimeline(); renderPlanSelectedPanel();
+  const cat = getCat(catId);
+  showToast(`계획 · ${cat?.name} · ${range.length * SLOT_MIN}분`);
+}
+
+function initPlanMode() {
+  if (!state.goals) state.goals = { day: {}, week: {}, month: {} };
+  if (!state.planTimeline) state.planTimeline = {};
 }
 
 init();
