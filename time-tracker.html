@@ -1281,7 +1281,10 @@
 const COLORS = [
   '#E07B54','#5B8DB8','#6BAA75','#C17FBF',
   '#D4A843','#E85E5E','#5EC4C4','#9B8EA8',
-  '#A0522D','#4682B4','#3CB371','#DA70D6'
+  '#A0522D','#5E5CE6','#3CB371','#DA70D6',
+  '#F4A460','#6495ED','#90EE90','#DDA0DD',
+  '#FFD700','#FF6B6B','#48D1CC','#8E8E93',
+  '#CD853F','#1E90FF','#32CD32','#FF69B4'
 ];
 const DOW = ['일','월','화','수','목','금','토'];
 const SLOTS_PER_HOUR = 4;   // 15분 × 4 = 60분
@@ -1964,7 +1967,6 @@ document.getElementById('addCatBtn').addEventListener('click', () => {
   const nameEl = document.getElementById('newCatName');
   const name = nameEl.value.trim();
   if (!name) return;
-  if (state.categories.length >= 12) { showToast('최대 12개까지 추가할 수 있어요'); return; }
   state.categories.push({ id: Date.now(), name, color: state.selectedColor });
   save();
   nameEl.value = '';
