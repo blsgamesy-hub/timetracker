@@ -7,7 +7,7 @@
   "background_color": "#F5F0E8",
   "theme_color": "#1C1917",
   "lang": "ko",
-  "orientation": "any",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "./icon_192_time-tracker.png",

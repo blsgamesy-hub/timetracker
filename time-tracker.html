@@ -2238,6 +2238,20 @@ document.getElementById('emojiInput').addEventListener('keydown', e => {
 });
 
 /* ── 초기화 ── */
+function getNextHourToInput(dateStr) {
+  const tl = state.timeline[dateStr] || {};
+  let lastFilledHour = -1;
+  for (let h = 0; h < 24; h++) {
+    for (let s = 0; s < SLOTS_PER_HOUR; s++) {
+      if (tl[tlKey(h, s)]) lastFilledHour = h;
+    }
+  }
+  if (lastFilledHour === -1) return 0; // 아무 기록 없으면 0시
+  // 마지막 시간대가 다 채워졌는지 확인
+  const allFilled = [0,1,2,3].every(s => tl[tlKey(lastFilledHour, s)]);
+  return allFilled ? Math.min(lastFilledHour + 1, 23) : lastFilledHour;
+}
+
 function init() {
   load();
   document.getElementById('headerEmoji').textContent = state.emojis[Math.floor(Math.random() * state.emojis.length)] || '✨';
@@ -2246,7 +2260,11 @@ function init() {
   state.calMonth = now.getMonth();
   renderColorPicker();
   renderCatManageList();
-  selectDate(todayStr());
+  const today = todayStr();
+  selectDate(today);
+  state.selectedHour = getNextHourToInput(today);
+  renderTimeline();
+  renderSelectedPanel();
   initPlanMode();
 }
 
