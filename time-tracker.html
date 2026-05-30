@@ -1805,7 +1805,7 @@ function onTouchStart(e) {
 
   longPressReady = false;
   longPressTimer = setTimeout(() => {
-    // 1초 꾹 누름 완료 → 드래그 모드 진입
+    // 0.8초 꾹 누름 완료 → 드래그 모드 진입
     longPressReady = true;
     dragStart = pos;
     dragEnd = pos;
@@ -1815,7 +1815,7 @@ function onTouchStart(e) {
     if (el) el.classList.add('longpress-ready');
     // 스크롤 잠금
     document.getElementById('tlGrid').style.touchAction = 'none';
-  }, 1000);
+  }, 800);
 }
 function onTouchMove(e) {
   if (!longPressReady || !dragStart) {
